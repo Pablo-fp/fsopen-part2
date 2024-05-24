@@ -27,8 +27,8 @@ const App = () => {
         number: newNumber,
       };
 
-      personService.create(personObject).then((newAddedPerson) => {
-        setPersons([...persons, newAddedPerson]);
+      personService.create(personObject).then((newPerson) => {
+        setPersons([...persons, newPerson]);
         setNewName("");
         setNewNumber("");
       });
@@ -51,6 +51,19 @@ const App = () => {
     setSearchName(event.target.value);
   };
 
+  const handleDeletePerson = (id) => {
+    const deletedPerson = persons.find((person) => person.id === id);
+    if (
+      window.confirm(
+        `Do you want to delete ${deletedPerson.name} from the list?`
+      )
+    ) {
+      personService.deletePerson(id).then(() => {
+        setPersons(persons.filter((person) => person.id !== deletedPerson.id));
+      });
+    }
+  };
+
   return (
     <div>
       <h2>Phonebook</h2>
@@ -64,7 +77,10 @@ const App = () => {
         handleNumberChange={handleNumberChange}
       />
       <h3>Numbers</h3>
-      <Persons personsToShow={personsToShow} />
+      <Persons
+        personsToShow={personsToShow}
+        onDeletePerson={handleDeletePerson}
+      />
     </div>
   );
 };
