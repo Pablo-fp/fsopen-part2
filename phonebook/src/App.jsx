@@ -3,12 +3,14 @@ import personService from "./services/persons";
 import Filter from "./components/Filter";
 import PersonForm from "./components/PersonForm";
 import Persons from "./components/Persons";
+import Notification from "./components/Notification";
 
 const App = () => {
   const [persons, setPersons] = useState([]);
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState("");
   const [searchName, setSearchName] = useState("");
+  const [message, setMessage] = useState({ type: null, content: null });
 
   useEffect(() => {
     personService.getAll().then((response) => {
@@ -24,14 +26,21 @@ const App = () => {
         `${newName} is already added to phonebook, do you want to replace the old number with a new one?`
       );
       if (!response) return;
-      const existingName = persons.find((person) => person.name === newName);
-      const newPerson = { ...existingName, number: newNumber };
+      const existingPerson = persons.find((person) => person.name === newName);
+      const newPerson = { ...existingPerson, number: newNumber };
       personService.update(newPerson.id, newPerson).then((updatedPerson) => {
         setPersons(
           persons.map((person) =>
             person.id !== updatedPerson.id ? person : updatedPerson
           )
         );
+        setMessage({
+          type: "success",
+          content: `Updated ${newPerson.name}´s number`,
+        });
+        setNewName("");
+        setNewNumber("");
+        clearNotification();
       });
     } else {
       const personObject = {
@@ -41,8 +50,13 @@ const App = () => {
 
       personService.create(personObject).then((newPerson) => {
         setPersons([...persons, newPerson]);
+        setMessage({
+          type: "success",
+          content: `Added ${newPerson.name} to the list`,
+        });
         setNewName("");
         setNewNumber("");
+        clearNotification();
       });
     }
   };
@@ -72,13 +86,24 @@ const App = () => {
     ) {
       personService.deletePerson(id).then(() => {
         setPersons(persons.filter((person) => person.id !== deletedPerson.id));
+        setMessage({
+          type: "delete",
+          content: `${deletedPerson.name} has been deleted from the list`,
+        });
       });
     }
+  };
+
+  const clearNotification = () => {
+    setTimeout(() => {
+      setMessage({ type: null, content: null });
+    }, 4000);
   };
 
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={message} />
       <Filter searchName={searchName} handleSearchChange={handleSearchChange} />
       <h3>Add a new</h3>
       <PersonForm
