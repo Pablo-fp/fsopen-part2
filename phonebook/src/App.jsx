@@ -28,20 +28,29 @@ const App = () => {
       if (!response) return;
       const existingPerson = persons.find((person) => person.name === newName);
       const newPerson = { ...existingPerson, number: newNumber };
-      personService.update(newPerson.id, newPerson).then((updatedPerson) => {
-        setPersons(
-          persons.map((person) =>
-            person.id !== updatedPerson.id ? person : updatedPerson
-          )
-        );
-        setMessage({
-          type: "success",
-          content: `Updated ${newPerson.name}´s number`,
+      personService
+        .update(newPerson.id, newPerson)
+        .then((updatedPerson) => {
+          setPersons(
+            persons.map((person) =>
+              person.id !== updatedPerson.id ? person : updatedPerson
+            )
+          );
+          setMessage({
+            type: "success",
+            content: `Updated ${newPerson.name}´s number`,
+          });
+          setNewName("");
+          setNewNumber("");
+          clearNotification();
+        })
+        .catch((error) => {
+          setMessage({
+            type: "error",
+            content: `${updatedPerson.name} has already been removed from server`,
+          });
+          clearNotification();
         });
-        setNewName("");
-        setNewNumber("");
-        clearNotification();
-      });
     } else {
       const personObject = {
         name: newName,
@@ -84,13 +93,25 @@ const App = () => {
         `Do you want to delete ${deletedPerson.name} from the list?`
       )
     ) {
-      personService.deletePerson(id).then(() => {
-        setPersons(persons.filter((person) => person.id !== deletedPerson.id));
-        setMessage({
-          type: "delete",
-          content: `${deletedPerson.name} has been deleted from the list`,
+      personService
+        .deletePerson(id)
+        .then(() => {
+          setPersons(
+            persons.filter((person) => person.id !== deletedPerson.id)
+          );
+          setMessage({
+            type: "delete",
+            content: `${deletedPerson.name} has been deleted from the list`,
+          });
+          clearNotification();
+        })
+        .catch((error) => {
+          setMessage({
+            type: "error",
+            content: `${deletedPerson.name} has already been removed from server`,
+          });
+          clearNotification();
         });
-      });
     }
   };
 
