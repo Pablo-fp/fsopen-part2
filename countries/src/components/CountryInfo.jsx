@@ -1,19 +1,24 @@
+import axios from "axios";
 import React, { useState, useEffect } from "react";
+
+const api = import.meta.env.VITE_API_KEY;
+console.log(api);
 
 const CountryInfo = ({ country }) => {
   const imgAltText = `Flag of ${country.name.common}`;
 
-  //   const [weather, setWeather] = useState({});
-  //   const [temperature, setTemperature] = useState(0);
+  const [weather, setWeather] = useState({});
+  const [temperature, setTemperature] = useState(0);
+  console.log(temperature);
 
-  //   const url = `https://api.openweathermap.org/data/2.5/weather?q=${country.capital}&appid=${process.env.REACT_APP_OPEN_WEATHER_API}`;
-  //   useEffect(() => {
-  //     axios.get(url).then((response) => {
-  //       setWeather(response.data);
-  //       // change to F --> C
-  //       setTemperature((((response.data.main.temp - 32) * 5) / 9).toFixed(2));
-  //     });
-  //   }, [url]);
+  const url = `https://api.openweathermap.org/data/2.5/weather?q=${country.capital}&appid=${api}`;
+  useEffect(() => {
+    axios.get(url).then((response) => {
+      setWeather(response.data);
+      // change to F --> C
+      setTemperature((response.data.main.temp - 273.15).toFixed(2));
+    });
+  }, [url]);
 
   return (
     <div>
@@ -26,16 +31,15 @@ const CountryInfo = ({ country }) => {
         ))}
       </ul>
       <img src={country.flags.png} alt={imgAltText} width={200} />
-      {/* <div>
+      <div>
         <h3>Weather in {country.capital}</h3>
         {weather.weather && (
           <div>
-            <div>temperature {temperature}</div>
-            <div>wind {weather.wind.speed} m/s</div>
-            <WeatherIcon weather={weather} />
+            <div>temperature: {temperature}</div>
+            <div>wind: {weather.wind.speed} m/s</div>
           </div>
         )}
-      </div> */}
+      </div>
     </div>
   );
 };
